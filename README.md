@@ -78,6 +78,84 @@ docker compose up -d
 # See docs/setup.md for details
 ```
 
+## Usage
+
+Once brAIn is running and configured in your MCP client, your AI assistant gets access to the brain tools automatically. Just talk naturally — the AI decides when to use them.
+
+### Teaching your brain
+
+Tell the AI things you want it to remember:
+
+```
+You:   "Remember that I'm Max, I work on the EC2 Instance Features team, and I prefer concise answers."
+AI:    → calls brain_remember(category="identity", content="Max, works on EC2 Instance Features team")
+       → calls brain_remember(category="preferences", content="Prefers concise answers")
+       "Got it, I'll remember that."
+
+You:   "graf@ is our SEV-SNP expert and diapop@ works on XoN live migration."
+AI:    → calls brain_remember(category="people", content="graf@ is the SEV-SNP expert", tags="team,sev-snp")
+       → calls brain_remember(category="people", content="diapop@ works on XoN live migration", tags="team,xon")
+       "Noted."
+
+You:   "For the mtshare project, the API is FastAPI+PostgreSQL at api.mtshare.net, web is Next.js at mtshare.net."
+AI:    → calls brain_remember(category="projects", content="mtshare: FastAPI+PostgreSQL API at api.mtshare.net, Next.js web at mtshare.net", tags="mtshare")
+       "Saved."
+```
+
+### Recalling knowledge
+
+In a **new conversation** (no prior context), ask naturally:
+
+```
+You:   "What do you know about me?"
+AI:    → calls brain_recall(query="user identity preferences")
+       → calls brain_profile()
+       "You're Max, on the EC2 Instance Features team. You prefer concise answers."
+
+You:   "Who on my team knows about SEV-SNP?"
+AI:    → calls brain_recall(query="SEV-SNP", category="people")
+       "graf@ is your SEV-SNP expert."
+
+You:   "Give me context on the mtshare project."
+AI:    → calls brain_context(project="mtshare")
+       "mtshare is a universal music link sharing platform — FastAPI+PostgreSQL API at api.mtshare.net, Next.js web at mtshare.net."
+```
+
+### Managing memories
+
+```
+You:   "List everything you know about people on my team."
+AI:    → calls brain_list(category="people")
+       Shows all stored people memories.
+
+You:   "Forget memory abc123."
+AI:    → calls brain_forget(id="abc123")
+       "Done, forgotten."
+```
+
+### Profile shortcuts
+
+Profile is a key-value store for quick identity lookups:
+
+```
+You:   "Set my profile: name is Max, team is EC2 Instance Features, editor is vim."
+AI:    → calls brain_profile(key="name", value="Max")
+       → calls brain_profile(key="team", value="EC2 Instance Features")
+       → calls brain_profile(key="editor", value="vim")
+```
+
+### Browsing your brain
+
+Your brain data is always accessible as files:
+
+```bash
+# SQLite database
+ls ~/.brain/data/brain.db
+
+# Query directly
+sqlite3 ~/.brain/data/brain.db "SELECT id, category, content FROM memories ORDER BY created_at DESC LIMIT 10;"
+```
+
 ## Configuration
 
 brAIn stores data in `~/.brain/data` on your host machine (mounted as a Docker volume). The database, embeddings, and markdown exports all live there.
@@ -102,12 +180,12 @@ See [docs/architecture.md](docs/architecture.md) for the full design.
 ## Roadmap
 
 - [x] Project documentation and architecture
-- [ ] Core MCP server with remember/recall/forget
-- [ ] SQLite storage with FTS5 full-text search
+- [x] Core MCP server with remember/recall/forget
+- [x] SQLite storage with FTS5 full-text search
 - [ ] Local vector embeddings for semantic recall
-- [ ] Docker image and compose setup
-- [ ] Profile and preferences management
-- [ ] Project context aggregation
+- [x] Docker image and compose setup
+- [x] Profile and preferences management
+- [x] Project context aggregation
 - [ ] Conversation summarization
 - [ ] Markdown export of brain contents
 - [ ] Auto-learning mode (suggest what to remember)
