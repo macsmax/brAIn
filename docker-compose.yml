@@ -1,0 +1,8 @@
+services:
+  brain:
+    build: .
+    container_name: brain
+    stdin_open: true
+    volumes:
+      - ~/.brain/data:/app/data
+    restart: unless-stopped

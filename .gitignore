@@ -1,0 +1,16 @@
+# brAIn data directory
+data/
+
+# Python
+__pycache__/
+*.pyc
+*.egg-info/
+dist/
+build/
+.venv/
+
+# Docker
+.docker/
+
+# OS
+.DS_Store
