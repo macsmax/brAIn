@@ -4,9 +4,11 @@ A local, private MCP (Model Context Protocol) server that acts as your AI second
 
 ## Why
 
-Every time you start a new AI chat, you lose context. You re-explain your setup, your team, your preferences. brAIn fixes this by running a local MCP server in Docker that remembers everything you tell it and lets any MCP-compatible AI assistant (Kiro, Claude, etc.) recall that knowledge.
+Every time you start a new AI chat, you lose context. You re-explain your setup, your team, your preferences. brAIn fixes this by running a local MCP server in Docker (or Finch) that remembers everything you tell it and lets any MCP-compatible AI assistant (Kiro, Claude, etc.) recall that knowledge.
 
 **Everything stays on your machine. No cloud. No API keys for storage. Fully private.**
+
+> Works with [Docker](https://www.docker.com/) or [Finch](https://runfinch.com/) (just replace `docker` with `finch` in the commands below).
 
 ## How It Works
 
@@ -19,7 +21,7 @@ Every time you start a new AI chat, you lose context. You re-explain your setup,
                        ▼
 ┌─────────────────────────────────────────────────────┐
 │                brAIn MCP Server                      │
-│                (Docker container)                     │
+│             (Docker/Finch container)                  │
 │                                                      │
 │  ┌─────────────┐  ┌──────────────┐  ┌────────────┐ │
 │  │   Memory     │  │   Semantic   │  │  Profile   │ │
@@ -71,7 +73,7 @@ brAIn exposes these tools to your AI assistant:
 git clone git@github.com:macsmax/brAIn.git
 cd brAIn
 
-# Build and run
+# Build and run (use "finch" instead of "docker" if using Finch)
 docker compose up -d
 
 # Add to your MCP client config (e.g. ~/.kiro/mcp.json)
@@ -183,7 +185,7 @@ See [docs/architecture.md](docs/architecture.md) for the full design.
 - [x] Core MCP server with remember/recall/forget
 - [x] SQLite storage with FTS5 full-text search
 - [ ] Local vector embeddings for semantic recall
-- [x] Docker image and compose setup
+- [x] Docker/Finch image and compose setup
 - [x] Profile and preferences management
 - [x] Project context aggregation
 - [ ] Conversation summarization
