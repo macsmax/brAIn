@@ -99,15 +99,19 @@ brAIn/
 {
   "mcpServers": {
     "brain": {
-      "command": "docker",
-      "args": ["exec", "-i", "brain", "python", "-m", "src.server"],
+      "command": "finch",
+      "args": [
+        "run", "--rm", "-i",
+        "-v", "~/.brain/data:/app/data",
+        "brain:latest"
+      ],
       "disabled": false
     }
   }
 }
 ```
 
-### Alternative: stdio via docker run
+### Alternative: Docker instead of Finch
 ```json
 {
   "mcpServers": {

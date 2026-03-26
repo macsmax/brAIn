@@ -1,9 +1,6 @@
-"""Tests for MCP server tool dispatch."""
+"""Tests for MCP server tool functions."""
 
 import json
-import os
-import tempfile
-
 import pytest
 
 from src import server
@@ -17,55 +14,36 @@ def patch_store(monkeypatch, tmp_path):
     return store
 
 
-@pytest.mark.asyncio
-async def test_brain_remember():
-    result = await server.call_tool("brain_remember", {"category": "knowledge", "content": "test fact"})
-    data = json.loads(result[0].text)
+def test_brain_remember():
+    data = json.loads(server.brain_remember(category="knowledge", content="test fact"))
     assert data["status"] == "remembered"
 
 
-@pytest.mark.asyncio
-async def test_brain_recall(patch_store):
+def test_brain_recall(patch_store):
     patch_store.remember("knowledge", "Python is great")
-    result = await server.call_tool("brain_recall", {"query": "Python"})
-    data = json.loads(result[0].text)
+    data = json.loads(server.brain_recall(query="Python"))
     assert len(data) > 0
 
 
-@pytest.mark.asyncio
-async def test_brain_forget(patch_store):
+def test_brain_forget(patch_store):
     mem = patch_store.remember("knowledge", "temp")
-    result = await server.call_tool("brain_forget", {"id": mem["id"]})
-    data = json.loads(result[0].text)
+    data = json.loads(server.brain_forget(id=mem["id"]))
     assert data["status"] == "forgotten"
 
 
-@pytest.mark.asyncio
-async def test_brain_list(patch_store):
+def test_brain_list(patch_store):
     patch_store.remember("people", "Alice", "team")
-    result = await server.call_tool("brain_list", {"category": "people"})
-    data = json.loads(result[0].text)
+    data = json.loads(server.brain_list(category="people"))
     assert len(data) == 1
 
 
-@pytest.mark.asyncio
-async def test_brain_profile_set_and_get():
-    await server.call_tool("brain_profile", {"key": "name", "value": "Max"})
-    result = await server.call_tool("brain_profile", {"key": "name"})
-    data = json.loads(result[0].text)
+def test_brain_profile_set_and_get():
+    server.brain_profile(key="name", value="Max")
+    data = json.loads(server.brain_profile(key="name"))
     assert data["value"] == "Max"
 
 
-@pytest.mark.asyncio
-async def test_brain_context(patch_store):
+def test_brain_context(patch_store):
     patch_store.remember("projects", "brAIn is an MCP server", "brain")
-    result = await server.call_tool("brain_context", {"project": "brAIn"})
-    data = json.loads(result[0].text)
+    data = json.loads(server.brain_context(project="brAIn"))
     assert len(data) > 0
-
-
-@pytest.mark.asyncio
-async def test_unknown_tool():
-    result = await server.call_tool("brain_nonexistent", {})
-    data = json.loads(result[0].text)
-    assert "error" in data

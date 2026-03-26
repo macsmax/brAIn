@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS memories (
 );
 
 CREATE VIRTUAL TABLE IF NOT EXISTS memories_fts USING fts5(
-    content, tags, category, content='memories', content_rowid='rowid'
+    body, tags, category, content='memories', content_rowid='rowid'
 );
 
 CREATE TABLE IF NOT EXISTS profile (
@@ -32,22 +32,22 @@ CREATE TABLE IF NOT EXISTS profile (
 );
 """
 
-# FTS sync triggers
+# FTS sync triggers — 'body' maps to memories.content
 FTS_TRIGGERS = """
 CREATE TRIGGER IF NOT EXISTS memories_ai AFTER INSERT ON memories BEGIN
-    INSERT INTO memories_fts(rowid, content, tags, category)
+    INSERT INTO memories_fts(rowid, body, tags, category)
     VALUES (new.rowid, new.content, new.tags, new.category);
 END;
 
 CREATE TRIGGER IF NOT EXISTS memories_ad AFTER DELETE ON memories BEGIN
-    INSERT INTO memories_fts(memories_fts, rowid, content, tags, category)
+    INSERT INTO memories_fts(memories_fts, rowid, body, tags, category)
     VALUES ('delete', old.rowid, old.content, old.tags, old.category);
 END;
 
 CREATE TRIGGER IF NOT EXISTS memories_au AFTER UPDATE ON memories BEGIN
-    INSERT INTO memories_fts(memories_fts, rowid, content, tags, category)
+    INSERT INTO memories_fts(memories_fts, rowid, body, tags, category)
     VALUES ('delete', old.rowid, old.content, old.tags, old.category);
-    INSERT INTO memories_fts(rowid, content, tags, category)
+    INSERT INTO memories_fts(rowid, body, tags, category)
     VALUES (new.rowid, new.content, new.tags, new.category);
 END;
 """
@@ -62,8 +62,32 @@ class MemoryStore:
         os.makedirs(os.path.dirname(db_path), exist_ok=True)
         self.db = sqlite3.connect(db_path)
         self.db.row_factory = sqlite3.Row
+        self._migrate_fts()
         self.db.executescript(SCHEMA)
         self.db.executescript(FTS_TRIGGERS)
+
+    def _migrate_fts(self):
+        """Rebuild FTS table if it has the old broken schema (column named 'content')."""
+        row = self.db.execute(
+            "SELECT sql FROM sqlite_master WHERE type='table' AND name='memories_fts'"
+        ).fetchone()
+        if row and "body" not in row[0]:
+            self.db.executescript("""
+                DROP TRIGGER IF EXISTS memories_ai;
+                DROP TRIGGER IF EXISTS memories_ad;
+                DROP TRIGGER IF EXISTS memories_au;
+                DROP TABLE IF EXISTS memories_fts;
+            """)
+            self.db.executescript(SCHEMA)
+            self.db.executescript(FTS_TRIGGERS)
+            # Backfill FTS from existing memories
+            rows = self.db.execute("SELECT rowid, content, tags, category FROM memories").fetchall()
+            for r in rows:
+                self.db.execute(
+                    "INSERT INTO memories_fts(rowid, body, tags, category) VALUES (?, ?, ?, ?)",
+                    (r[0], r[1], r[2], r[3]),
+                )
+            self.db.commit()
 
     def remember(self, category: str, content: str, tags: str = "", source: str = "manual") -> dict:
         mid = str(uuid.uuid4())[:8]

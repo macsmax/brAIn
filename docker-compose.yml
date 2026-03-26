@@ -1,8 +1,10 @@
 services:
   brain:
     build: .
+    image: brain:latest
     container_name: brain
-    stdin_open: true
-    volumes:
-      - ~/.brain/data:/app/data
     restart: unless-stopped
+    ports:
+      - "8765:8765"
+    volumes:
+      - /Users/maxmng/.brain/data:/app/data
