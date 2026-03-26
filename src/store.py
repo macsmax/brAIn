@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS memories (
 );
 
 CREATE VIRTUAL TABLE IF NOT EXISTS memories_fts USING fts5(
-    content, tags, category, content_rowid='rowid'
+    content, tags, category, content='memories', content_rowid='rowid'
 );
 
 CREATE TABLE IF NOT EXISTS profile (
