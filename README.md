@@ -168,6 +168,22 @@ volumes:
   - ~/.brain/data:/app/data
 ```
 
+## Steering File (Recommended)
+
+brAIn ships with a steering file in `steering/brain-first.md` that tells AI assistants to check the brain before answering questions. This ensures your stored knowledge (acronyms, project details, team info, etc.) is used instead of generic responses.
+
+To use it, copy or symlink it into your AI client's steering directory:
+
+```bash
+# For Kiro CLI
+cp steering/brain-first.md ~/.kiro/steering/brain-first.md
+
+# Or symlink it
+ln -s "$(pwd)/steering/brain-first.md" ~/.kiro/steering/brain-first.md
+```
+
+Without this, the AI assistant has the brain tools available but won't proactively check them before answering. With it, questions like "what is EPS?" will hit your brain first and return your stored definition instead of a generic one.
+
 ## Architecture
 
 See [docs/architecture.md](docs/architecture.md) for the full design.
