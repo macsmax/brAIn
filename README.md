@@ -184,6 +184,38 @@ ln -s "$(pwd)/steering/brain-first.md" ~/.kiro/steering/brain-first.md
 
 Without this, the AI assistant has the brain tools available but won't proactively check them before answering. With it, questions like "what is EPS?" will hit your brain first and return your stored definition instead of a generic one.
 
+## Auto-Approving Tools (Kiro CLI)
+
+By default, Kiro CLI asks for confirmation before running MCP tools. To auto-approve all brAIn tools, add `"@brain"` to the `allowedTools` list in your agent configuration:
+
+```json
+// ~/.kiro/agents/default.json
+{
+  "name": "default",
+  "tools": ["*"],
+  "allowedTools": [
+    "fs_read",
+    "@brain"
+  ],
+  "resources": ["README.md", "KIRO.md", ".kiro/rules/**/*.md"],
+  "useLegacyMcpJson": true
+}
+```
+
+Then set it as your default agent:
+
+```bash
+kiro-cli settings chat.defaultAgent default
+```
+
+The `"@brain"` wildcard auto-approves all tools from the `brain` MCP server (`brain_remember`, `brain_recall`, `brain_forget`, `brain_profile`, `brain_context`, `brain_list`).
+
+Alternatively, for session-only trust, start with:
+
+```bash
+kiro-cli chat --trust-tools=brain_recall,brain_remember,brain_forget,brain_profile,brain_context,brain_list
+```
+
 ## Architecture
 
 See [docs/architecture.md](docs/architecture.md) for the full design.
