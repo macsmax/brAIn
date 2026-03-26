@@ -7,4 +7,4 @@ services:
     ports:
       - "8765:8765"
     volumes:
-      - /Users/maxmng/.brain/data:/app/data
+      - ${HOME}/.brain/data:/app/data
