@@ -7,4 +7,4 @@ services:
     ports:
       - "8765:8765"
     volumes:
-      - ${HOME}/.brain/data:/app/data
+      - ./data:/app/data
