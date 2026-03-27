@@ -197,7 +197,7 @@ By default, Kiro CLI asks for confirmation before running MCP tools. To auto-app
     "fs_read",
     "@brain"
   ],
-  "resources": ["README.md", "KIRO.md", ".kiro/rules/**/*.md"],
+  "resources": ["file://README.md", "file://KIRO.md", "file://.kiro/rules/**/*.md"],
   "useLegacyMcpJson": true
 }
 ```
@@ -213,7 +213,7 @@ The `"@brain"` wildcard auto-approves all tools from the `brain` MCP server (`br
 Alternatively, for session-only trust, start with:
 
 ```bash
-kiro-cli chat --trust-tools=brain_recall,brain_remember,brain_forget,brain_profile,brain_context,brain_list
+kiro-cli chat --trust-tools=@brain/brain_recall,@brain/brain_remember,@brain/brain_forget,@brain/brain_profile,@brain/brain_context,@brain/brain_list
 ```
 
 ## Architecture
