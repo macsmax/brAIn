@@ -94,9 +94,9 @@ AI:    → calls brain_remember(category="identity", content="Max, works on EC2 
        → calls brain_remember(category="preferences", content="Prefers concise answers")
        "Got it, I'll remember that."
 
-You:   "graf@ is our SEV-SNP expert and diapop@ works on XoN live migration."
-AI:    → calls brain_remember(category="people", content="graf@ is the SEV-SNP expert", tags="team,sev-snp")
-       → calls brain_remember(category="people", content="diapop@ works on XoN live migration", tags="team,xon")
+You:   "user1@ is our project2 expert and user2@ works on project1."
+AI:    → calls brain_remember(category="people", content="user1@ is the project2 expert", tags="team,project2")
+       → calls brain_remember(category="people", content="user2@ works on project1", tags="team,project1")
        "Noted."
 
 You:   "For the mtshare project, the API is FastAPI+PostgreSQL at api.mtshare.net, web is Next.js at mtshare.net."
@@ -114,9 +114,9 @@ AI:    → calls brain_recall(query="user identity preferences")
        → calls brain_profile()
        "You're Max, on the EC2 Instance Features team. You prefer concise answers."
 
-You:   "Who on my team knows about SEV-SNP?"
-AI:    → calls brain_recall(query="SEV-SNP", category="people")
-       "graf@ is your SEV-SNP expert."
+You:   "Who on my team knows about project2?"
+AI:    → calls brain_recall(query="project2", category="people")
+       "user1@ is your project2 expert."
 
 You:   "Give me context on the mtshare project."
 AI:    → calls brain_context(project="mtshare")
