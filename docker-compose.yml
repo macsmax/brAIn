@@ -6,5 +6,6 @@ services:
     restart: unless-stopped
     ports:
       - "8765:8765"
+      - "8766:8766"
     volumes:
       - ./data:/app/data

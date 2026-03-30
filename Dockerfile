@@ -10,5 +10,5 @@ COPY src/ src/
 ENV BRAIN_DATA_DIR=/app/data
 ENV TRANSFORMERS_CACHE=/app/data/models
 
-EXPOSE 8765
-CMD ["python", "-m", "src.server"]
+EXPOSE 8765 8766
+CMD ["sh", "-c", "python -m src.server & uvicorn src.web:app --host 0.0.0.0 --port 8766 & wait"]

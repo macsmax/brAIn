@@ -1,9 +1,11 @@
 """SQLite-backed memory store with FTS5 and vector search."""
 
+import json
 import os
 import sqlite3
 import uuid
 from datetime import datetime, timezone
+from pathlib import Path
 
 from .embeddings import embed, cosine_similarity
 
@@ -60,6 +62,7 @@ def _now() -> str:
 class MemoryStore:
     def __init__(self, db_path: str = DB_PATH):
         os.makedirs(os.path.dirname(db_path), exist_ok=True)
+        self.db_path = db_path
         self.db = sqlite3.connect(db_path)
         self.db.row_factory = sqlite3.Row
         self._migrate_fts()
@@ -168,3 +171,59 @@ class MemoryStore:
         """Return all memories related to a project."""
         return self.recall(project, category="projects", limit=10) + \
                self.recall(project, limit=5)
+
+    def summarize(self, summary: str, tags: str = "") -> dict:
+        """Store a conversation summary as a 'conversations' memory."""
+        return self.remember("conversations", summary, tags, source="summarize")
+
+    def export_markdown(self) -> str:
+        """Export all memories and profile as markdown. Also writes to data/exports/."""
+        rows = self.db.execute(
+            "SELECT id, category, content, tags, created_at FROM memories ORDER BY category, created_at DESC"
+        ).fetchall()
+        profile = self.get_profile()
+
+        lines = ["# brAIn Export", "", f"Exported: {_now()}", ""]
+
+        if profile:
+            lines += ["## Profile", ""]
+            for k, v in profile.items():
+                lines.append(f"- **{k}**: {v}")
+            lines.append("")
+
+        by_cat: dict[str, list] = {}
+        for r in rows:
+            by_cat.setdefault(r["category"], []).append(r)
+
+        for cat, memories in sorted(by_cat.items()):
+            lines += [f"## {cat.title()}", ""]
+            for m in memories:
+                tag_str = f" `{m['tags']}`" if m["tags"] else ""
+                lines.append(f"- [{m['id']}] {m['content']}{tag_str}")
+            lines.append("")
+
+        md = "\n".join(lines)
+
+        export_dir = Path(os.path.dirname(self.db_path)) / "exports"
+        export_dir.mkdir(exist_ok=True)
+        (export_dir / "brain.md").write_text(md)
+
+        return md
+
+    def suggest(self, text: str) -> list[dict]:
+        """Suggest what to remember from text. Returns candidate memories with low similarity to existing ones."""
+        # Split on sentence boundaries
+        import re
+        sentences = [s.strip() for s in re.split(r'[.!?\n]+', text) if len(s.strip()) > 20]
+        if not sentences:
+            return []
+
+        suggestions = []
+        for sentence in sentences:
+            results = self.recall(sentence, limit=1)
+            top_sim = results[0]["similarity"] if results else 0.0
+            # Only suggest if nothing similar already stored
+            if top_sim < 0.5:
+                suggestions.append({"content": sentence, "top_similarity": round(top_sim, 4)})
+
+        return suggestions[:5]

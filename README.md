@@ -13,33 +13,33 @@ Every time you start a new AI chat, you lose context. You re-explain your setup,
 ## How It Works
 
 ```
-┌─────────────────────────────────────────────────────┐
-│                   AI Assistant                       │
-│              (Kiro, Claude, etc.)                    │
-└──────────────────────┬──────────────────────────────┘
-                       │ MCP Protocol (stdio/SSE)
-                       ▼
-┌─────────────────────────────────────────────────────┐
-│                brAIn MCP Server                      │
-│             (Docker/Finch container)                  │
+┌──────────────────────────────────────────────────────┐
+│                    AI Assistant                       │
+│               (Kiro, Claude, etc.)                   │
+└───────────────────────┬──────────────────────────────┘
+                        │ MCP Protocol (stdio/SSE)
+                        ▼
+┌──────────────────────────────────────────────────────┐
+│                 brAIn MCP Server                     │
+│              (Docker/Finch container)                 │
 │                                                      │
-│  ┌─────────────┐  ┌──────────────┐  ┌────────────┐ │
-│  │   Memory     │  │   Semantic   │  │  Profile   │ │
-│  │   Manager    │  │   Search     │  │  Manager   │ │
-│  └──────┬──────┘  └──────┬───────┘  └─────┬──────┘ │
+│  ┌─────────────┐  ┌──────────────┐  ┌────────────┐  │
+│  │   Memory    │  │   Semantic   │  │  Profile   │  │
+│  │   Manager   │  │   Search    │  │  Manager   │  │
+│  └──────┬──────┘  └──────┬───────┘  └─────┬──────┘  │
 │         │                │                 │         │
 │         ▼                ▼                 ▼         │
-│  ┌──────────────────────────────────────────────┐   │
+│  ┌───────────────────────────────────────────────┐   │
 │  │              SQLite + Embeddings              │   │
 │  │           (local vector search)               │   │
-│  └──────────────────────────────────────────────┘   │
+│  └───────────────────────────────────────────────┘   │
 │         │                                            │
 │         ▼                                            │
-│  ┌──────────────────────────────────────────────┐   │
+│  ┌───────────────────────────────────────────────┐   │
 │  │         Docker Volume (~/.brain/data)          │   │
 │  │     SQLite DB + markdown exports + config     │   │
-│  └──────────────────────────────────────────────┘   │
-└─────────────────────────────────────────────────────┘
+│  └───────────────────────────────────────────────┘   │
+└──────────────────────────────────────────────────────┘
 ```
 
 ## MCP Tools
@@ -55,6 +55,8 @@ brAIn exposes these tools to your AI assistant:
 | `brain_context` | Get all known context for a project |
 | `brain_list` | List memories by category or tag |
 | `brain_summarize` | Summarize and store highlights from current conversation |
+| `brain_export` | Export all brain contents as markdown |
+| `brain_suggest` | Suggest what to remember from a block of text |
 
 ## Memory Categories
 
@@ -216,6 +218,18 @@ Alternatively, for session-only trust, start with:
 kiro-cli chat --trust-tools=@brain/brain_recall,@brain/brain_remember,@brain/brain_forget,@brain/brain_profile,@brain/brain_context,@brain/brain_list
 ```
 
+## Web UI
+
+brAIn includes a web interface for browsing and editing memories at `http://localhost:8766`. It runs alongside the MCP server in the same container.
+
+Features:
+- Browse and search memories with semantic search
+- Filter by category
+- Add new memories
+- Delete memories
+- View and set profile
+- Export brain contents as markdown
+
 ## Architecture
 
 See [docs/architecture.md](docs/architecture.md) for the full design.
@@ -232,14 +246,14 @@ See [docs/architecture.md](docs/architecture.md) for the full design.
 - [x] Project documentation and architecture
 - [x] Core MCP server with remember/recall/forget
 - [x] SQLite storage with FTS5 full-text search
-- [ ] Local vector embeddings for semantic recall
+- [x] Local vector embeddings for semantic recall
 - [x] Docker/Finch image and compose setup
 - [x] Profile and preferences management
 - [x] Project context aggregation
-- [ ] Conversation summarization
-- [ ] Markdown export of brain contents
-- [ ] Auto-learning mode (suggest what to remember)
-- [ ] Web UI for browsing/editing memories
+- [x] Conversation summarization
+- [x] Markdown export of brain contents
+- [x] Auto-learning mode (suggest what to remember)
+- [x] Web UI for browsing/editing memories
 
 ## License
 

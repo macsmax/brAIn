@@ -81,6 +81,33 @@ def brain_context(project: str) -> str:
     return json.dumps(store.context(project), indent=2)
 
 
+@mcp.tool()
+def brain_summarize(summary: str, tags: str = "") -> str:
+    """Summarize and store highlights from current conversation.
+
+    Args:
+        summary: Distilled summary of the conversation
+        tags: Comma-separated tags for filtering (optional)
+    """
+    return json.dumps(store.summarize(summary, tags), indent=2)
+
+
+@mcp.tool()
+def brain_export() -> str:
+    """Export all brain contents as markdown. Also saves to data/exports/brain.md."""
+    return store.export_markdown()
+
+
+@mcp.tool()
+def brain_suggest(text: str) -> str:
+    """Suggest what to remember from a block of text. Returns novel information not already in the brain.
+
+    Args:
+        text: Text to analyze for potential memories
+    """
+    return json.dumps(store.suggest(text), indent=2)
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(mcp.streamable_http_app(), host="0.0.0.0", port=8765)
