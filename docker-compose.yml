@@ -1,7 +1,7 @@
 services:
   brain:
     build: .
-    image: brain:latest
+    image: macsmax/brain:latest
     container_name: brain
     restart: unless-stopped
     ports:
