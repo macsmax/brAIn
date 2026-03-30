@@ -234,11 +234,36 @@ Features:
 
 See [docs/architecture.md](docs/architecture.md) for the full design.
 
+## Networking and Security
+
+By default, both the MCP server (port 8765) and web UI (port 8766) are bound to `127.0.0.1` (localhost only). This means only processes on your machine can reach them.
+
+```yaml
+# Default: localhost only (recommended for single-user)
+ports:
+  - "127.0.0.1:8765:8765"
+  - "127.0.0.1:8766:8766"
+```
+
+If you want multiple AI agents on different machines to share the same brain, remove the `127.0.0.1` prefix to bind on all interfaces:
+
+```yaml
+# Network-accessible (for multi-agent setups)
+ports:
+  - "8765:8765"
+  - "8766:8766"
+```
+
+Remote agents can then connect using HTTP transport by pointing their MCP client config to `http://<your-ip>:8765/mcp`. Note that stdio transport won't work remotely; the agent must support HTTP-based MCP (streamable HTTP or SSE).
+
+**Warning:** There is no authentication. Anyone who can reach the port can read, write, and delete your memories. Only expose to the network if you trust it (e.g. a private LAN or VPN). For untrusted networks, consider putting a reverse proxy with auth in front.
+
 ## Privacy
 
 - All data stored locally in `~/.brain/data`
 - Embeddings computed locally using `sentence-transformers` (no external API calls)
 - Docker container has no network access after image pull
+- Ports bound to localhost by default; not reachable from the network
 - You can browse your brain's knowledge as plain markdown files in `~/.brain/data/exports/`
 
 ## Roadmap
