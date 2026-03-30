@@ -6,7 +6,7 @@ from mcp.server.fastmcp import FastMCP
 
 from .store import MemoryStore
 
-mcp = FastMCP("brain", stateless_http=True)
+mcp = FastMCP("brain")
 store = MemoryStore()
 
 CATEGORIES = ["identity", "preferences", "projects", "people", "workflows", "knowledge", "conversations"]
