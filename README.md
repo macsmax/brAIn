@@ -102,7 +102,7 @@ cat > ~/.kiro/agents/default.json << 'EOF'
   "name": "default",
   "tools": ["*"],
   "allowedTools": ["fs_read", "@brain"],
-  "resources": ["file://README.md", "file://.kiro/rules/**/*.md"],
+  "resources": ["file://README.md", "file://.kiro/rules/**/*.md", "file://~/.kiro/steering/**/*.md"],
   "useLegacyMcpJson": true
 }
 EOF
@@ -232,7 +232,7 @@ By default, Kiro CLI asks for confirmation before running MCP tools. To auto-app
     "fs_read",
     "@brain"
   ],
-  "resources": ["file://README.md", "file://KIRO.md", "file://.kiro/rules/**/*.md"],
+  "resources": ["file://README.md", "file://KIRO.md", "file://.kiro/rules/**/*.md", "file://~/.kiro/steering/**/*.md"],
   "useLegacyMcpJson": true
 }
 ```
