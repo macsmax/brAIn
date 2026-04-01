@@ -77,10 +77,43 @@ cd brAIn
 
 # Build and run (use "finch" instead of "docker" if using Finch)
 docker compose up -d
-
-# Add to your MCP client config (e.g. ~/.kiro/mcp.json)
-# See docs/setup.md for details
 ```
+
+Then configure your MCP client. For Kiro CLI:
+
+```bash
+# 1. MCP server config
+mkdir -p ~/.kiro/settings
+cat > ~/.kiro/settings/mcp.json << 'EOF'
+{
+  "mcpServers": {
+    "brain": {
+      "url": "http://localhost:8765/mcp",
+      "disabled": false
+    }
+  }
+}
+EOF
+
+# 2. Agent config (auto-approves brAIn tools)
+mkdir -p ~/.kiro/agents
+cat > ~/.kiro/agents/default.json << 'EOF'
+{
+  "name": "default",
+  "tools": ["*"],
+  "allowedTools": ["fs_read", "@brain"],
+  "resources": ["file://README.md", "file://.kiro/rules/**/*.md"],
+  "useLegacyMcpJson": true
+}
+EOF
+kiro-cli settings chat.defaultAgent default
+
+# 3. Steering file (recommended — makes AI check brain proactively)
+mkdir -p ~/.kiro/steering
+cp steering/brain-first.md ~/.kiro/steering/brain-first.md
+```
+
+See [docs/setup.md](docs/setup.md) for full details including Claude Desktop config.
 
 ## Usage
 

@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-- Docker and Docker Compose
+- Docker or [Finch](https://runfinch.com/) (use `finch` instead of `docker` in the commands below)
 - An MCP-compatible AI client (Kiro CLI, Claude Desktop, etc.)
 
 ## Installation
@@ -10,58 +10,103 @@
 ### 1. Clone the repo
 
 ```bash
-git clone git@github.com:macsmax/brAIn.git
-cd brAIn
+git clone ssh://git.amazon.com/pkg/BrAIn -b dev
+cd BrAIn
 ```
 
-### 2. Create the data directory
-
-```bash
-mkdir -p ~/.brain/data
-```
-
-### 3. Build and start
+### 2. Build and start
 
 ```bash
 docker compose up -d
 ```
 
-The first run will download the sentence-transformers model (~80MB). This is cached in `~/.brain/data/models/` for subsequent runs.
+The first run will download the sentence-transformers model (~80MB). This is cached in `data/models/` for subsequent runs.
 
-### 4. Configure your MCP client
+### 3. Configure your MCP client
 
-Add brAIn to your MCP client configuration.
+brAIn exposes an HTTP endpoint at `http://localhost:8765/mcp`. Add it to your MCP client configuration.
 
-**Kiro CLI** — edit `~/.kiro/settings/mcp.json`:
-```json
+#### Kiro CLI
+
+You need to set up three files: the MCP server config, an agent config, and (optionally) a steering file.
+
+**a) MCP server config** — create `~/.kiro/settings/mcp.json`:
+
+```bash
+mkdir -p ~/.kiro/settings
+cat > ~/.kiro/settings/mcp.json << 'EOF'
 {
   "mcpServers": {
     "brain": {
-      "command": "docker",
-      "args": ["exec", "-i", "brain", "python", "-m", "src.server"],
-      "disabled": false
-    }
-  }
-}
-```
-
-**Claude Desktop** — edit `~/Library/Application Support/Claude/claude_desktop_config.json`:
-```json
-{
-  "mcpServers": {
-    "brain": {
-      "command": "docker",
-      "args": [
-        "run", "--rm", "-i",
-        "-v", "${HOME}/.brain/data:/app/data",
-        "brain:latest"
+      "url": "http://localhost:8765/mcp",
+      "disabled": false,
+      "autoApprove": [
+        "brain_remember",
+        "brain_recall",
+        "brain_forget",
+        "brain_list",
+        "brain_profile",
+        "brain_context"
       ]
     }
   }
 }
+EOF
 ```
 
-### 5. Verify
+This tells Kiro CLI where the brAIn MCP server is and which tools to auto-approve.
+
+**b) Agent config** — create `~/.kiro/agents/default.json`:
+
+```bash
+mkdir -p ~/.kiro/agents
+cat > ~/.kiro/agents/default.json << 'EOF'
+{
+  "name": "default",
+  "description": "Default agent with brAIn MCP tools auto-approved",
+  "tools": ["*"],
+  "allowedTools": [
+    "fs_read",
+    "@brain"
+  ],
+  "resources": ["file://README.md", "file://KIRO.md", "file://.kiro/rules/**/*.md"],
+  "useLegacyMcpJson": true
+}
+EOF
+```
+
+The `"@brain"` entry auto-approves all tools from the `brain` MCP server without confirmation prompts. The `useLegacyMcpJson` flag tells Kiro to read from `~/.kiro/settings/mcp.json`.
+
+Then set it as your default agent:
+
+```bash
+kiro-cli settings chat.defaultAgent default
+```
+
+**c) Steering file (recommended)** — tells the AI to check brAIn before answering:
+
+```bash
+mkdir -p ~/.kiro/steering
+cp steering/brain-first.md ~/.kiro/steering/brain-first.md
+```
+
+Without this, the AI has the brain tools but won't proactively check them. With it, questions like "what is EPS?" will hit your brain first.
+
+#### Claude Desktop
+
+Edit `~/Library/Application Support/Claude/claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "brain": {
+      "url": "http://localhost:8765/mcp"
+    }
+  }
+}
+```
+
+### 4. Verify
 
 Start a conversation with your AI assistant and ask it to:
 ```
@@ -77,10 +122,10 @@ If brAIn is working, the AI will recall your name and team from the previous con
 
 ## Data Location
 
-All data lives in `~/.brain/data/`:
+All data lives in the `data/` directory relative to the repo:
 
 ```
-~/.brain/data/
+data/
 ├── brain.db        # SQLite database (memories, profile, embeddings)
 ├── models/         # Cached sentence-transformers model
 └── exports/        # Markdown exports of your brain contents
@@ -92,16 +137,39 @@ All data lives in `~/.brain/data/`:
 
 ## Backup
 
-Just copy `~/.brain/data/` — it's a self-contained directory with everything.
+Just copy the `data/` directory.
 
 ```bash
-cp -r ~/.brain/data ~/.brain/backup-$(date +%Y%m%d)
+cp -r data data-backup-$(date +%Y%m%d)
 ```
+
+## Troubleshooting
+
+### AL2 Cloud Desktop: docker-buildx errors
+
+The version of `docker-buildx` bundled with AL2 may be too old for the compose build. Update it manually:
+
+```bash
+sudo mv /usr/libexec/docker/cli-plugins/docker-buildx /usr/libexec/docker/cli-plugins/docker-buildx_bak
+sudo curl -L https://github.com/docker/buildx/releases/download/v0.33.0/buildx-v0.33.0.linux-amd64 \
+  -o /usr/libexec/docker/cli-plugins/docker-buildx
+sudo chmod 755 /usr/libexec/docker/cli-plugins/docker-buildx
+```
+
+### Kiro CLI: "JSON parse error" or "default not found"
+
+If you see errors like:
+```
+Json supplied at ~/.kiro/agents/default.json is invalid
+WARNING: Failed to parse MCP config ~/.kiro/settings/mcp.json: JSON parse error
+Error: user defined default default not found
+```
+
+The config files are empty or malformed. Recreate them using the `cat` commands in the [Quick Start](#quick-start) section or [docs/setup.md](docs/setup.md).
 
 ## Updating
 
 ```bash
-cd brAIn
 git pull
 docker compose build
 docker compose up -d
