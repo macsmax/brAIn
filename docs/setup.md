@@ -24,7 +24,7 @@ The first run will download the sentence-transformers model (~80MB). This is cac
 
 ### 3. Configure your MCP client
 
-brAIn exposes an HTTP endpoint at `http://localhost:8765/mcp`. Add it to your MCP client configuration.
+brAIn exposes an HTTP endpoint at `http://localhost:8765/mcp/`. Add it to your MCP client configuration. The trailing slash is important — some MCP clients (e.g. Kiro CLI) require it.
 
 #### Kiro CLI
 
@@ -38,7 +38,7 @@ cat > ~/.kiro/settings/mcp.json << 'EOF'
 {
   "mcpServers": {
     "brain": {
-      "url": "http://localhost:8765/mcp",
+      "url": "http://localhost:8765/mcp/",
       "disabled": false,
       "autoApprove": [
         "brain_remember",
@@ -100,7 +100,7 @@ Edit `~/Library/Application Support/Claude/claude_desktop_config.json`:
 {
   "mcpServers": {
     "brain": {
-      "url": "http://localhost:8765/mcp"
+      "url": "http://localhost:8765/mcp/"
     }
   }
 }

@@ -88,7 +88,7 @@ cat > ~/.kiro/settings/mcp.json << 'EOF'
 {
   "mcpServers": {
     "brain": {
-      "url": "http://localhost:8765/mcp",
+      "url": "http://localhost:8765/mcp/",
       "disabled": false
     }
   }
