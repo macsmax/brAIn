@@ -255,13 +255,13 @@ kiro-cli chat --trust-tools=@brain/brain_recall,@brain/brain_remember,@brain/bra
 
 ### Claude Code
 
-Claude Code uses `permissions.allow` in settings to auto-approve tools. Add the brain MCP server and permissions to `~/.claude/settings.json` (global) or `.claude/settings.json` (project-level):
+Claude Code uses `permissions.allow` in settings to auto-approve tools. Add the brain MCP server to `~/.claude.json` (where Claude Code registers servers) and permissions to `~/.claude/settings.json`:
 
 ```json
 {
   "mcpServers": {
     "brain": {
-      "type": "sse",
+      "type": "streamable-http",
       "url": "http://localhost:8765/mcp"
     }
   },
