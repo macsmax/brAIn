@@ -113,7 +113,7 @@ mkdir -p ~/.kiro/steering
 cp steering/brain-first.md ~/.kiro/steering/brain-first.md
 ```
 
-See [docs/setup.md](docs/setup.md) for full details including Claude Desktop config.
+See [docs/setup.md](docs/setup.md) for full details including Claude Desktop and Claude Code config.
 
 ## Usage
 
@@ -213,13 +213,15 @@ To use it, copy or symlink it into your AI client's steering directory:
 # For Kiro CLI
 cp steering/brain-first.md ~/.kiro/steering/brain-first.md
 
-# Or symlink it
-ln -s "$(pwd)/steering/brain-first.md" ~/.kiro/steering/brain-first.md
+# For Claude Code
+cp steering/brain-first.md ~/.claude/rules/brain-mcp.md
 ```
 
 Without this, the AI assistant has the brain tools available but won't proactively check them before answering. With it, questions like "what is EPS?" will hit your brain first and return your stored definition instead of a generic one.
 
-## Auto-Approving Tools (Kiro CLI)
+## Auto-Approving Tools
+
+### Kiro CLI
 
 By default, Kiro CLI asks for confirmation before running MCP tools. To auto-approve all brAIn tools, add `"@brain"` to the `allowedTools` list in your agent configuration:
 
@@ -249,6 +251,39 @@ Alternatively, for session-only trust, start with:
 
 ```bash
 kiro-cli chat --trust-tools=@brain/brain_recall,@brain/brain_remember,@brain/brain_forget,@brain/brain_profile,@brain/brain_context,@brain/brain_list
+```
+
+### Claude Code
+
+Claude Code uses `permissions.allow` in settings to auto-approve tools. Add the brain MCP server and permissions to `~/.claude/settings.json` (global) or `.claude/settings.json` (project-level):
+
+```json
+{
+  "mcpServers": {
+    "brain": {
+      "type": "sse",
+      "url": "http://localhost:8765/mcp/"
+    }
+  },
+  "permissions": {
+    "allow": [
+      "mcp__brain__brain_remember",
+      "mcp__brain__brain_recall",
+      "mcp__brain__brain_forget",
+      "mcp__brain__brain_list",
+      "mcp__brain__brain_profile",
+      "mcp__brain__brain_context"
+    ]
+  }
+}
+```
+
+The tool name pattern is `mcp__<server-name>__<tool-name>`.
+
+For the steering file, copy it into Claude Code's rules directory:
+
+```bash
+cp steering/brain-first.md ~/.claude/rules/brain-mcp.md
 ```
 
 ## Web UI

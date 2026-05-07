@@ -92,6 +92,41 @@ cp steering/brain-first.md ~/.kiro/steering/brain-first.md
 
 Without this, the AI has the brain tools but won't proactively check them. With it, questions like "what is EPS?" will hit your brain first.
 
+#### Claude Code
+
+Claude Code requires `"type": "sse"` for HTTP-based MCP servers. Add the following to `~/.claude/settings.json` (global) or `.claude/settings.json` (project-level):
+
+```json
+{
+  "mcpServers": {
+    "brain": {
+      "type": "sse",
+      "url": "http://localhost:8765/mcp/"
+    }
+  },
+  "permissions": {
+    "allow": [
+      "mcp__brain__brain_remember",
+      "mcp__brain__brain_recall",
+      "mcp__brain__brain_forget",
+      "mcp__brain__brain_list",
+      "mcp__brain__brain_profile",
+      "mcp__brain__brain_context"
+    ]
+  }
+}
+```
+
+The `permissions.allow` list auto-approves these tools so Claude Code won't prompt for confirmation each time. The pattern is `mcp__<server-name>__<tool-name>`.
+
+For the steering file:
+
+```bash
+cp steering/brain-first.md ~/.claude/rules/brain-mcp.md
+```
+
+This creates a global rule that tells Claude Code to check brAIn before answering knowledge questions.
+
 #### Claude Desktop
 
 Edit `~/Library/Application Support/Claude/claude_desktop_config.json`:
