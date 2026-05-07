@@ -94,13 +94,13 @@ Without this, the AI has the brain tools but won't proactively check them. With 
 
 #### Claude Code
 
-Claude Code requires `"type": "streamable-http"` for HTTP-based MCP servers. Add the following to `~/.claude/settings.json` (global) or `.claude/settings.json` (project-level):
+Claude Code requires `"type": "http"` for HTTP-based MCP servers. You can also add it via CLI: `claude mcp add --transport http --scope user brain http://localhost:8765/mcp`. Add the following to `~/.claude/settings.json` (global) or `.claude/settings.json` (project-level):
 
 ```json
 {
   "mcpServers": {
     "brain": {
-      "type": "streamable-http",
+      "type": "http",
       "url": "http://localhost:8765/mcp"
     }
   },

@@ -261,7 +261,7 @@ Claude Code uses `permissions.allow` in settings to auto-approve tools. Add the 
 {
   "mcpServers": {
     "brain": {
-      "type": "streamable-http",
+      "type": "http",
       "url": "http://localhost:8765/mcp"
     }
   },
