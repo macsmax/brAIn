@@ -101,7 +101,7 @@ Claude Code requires `"type": "sse"` for HTTP-based MCP servers. Add the followi
   "mcpServers": {
     "brain": {
       "type": "sse",
-      "url": "http://localhost:8765/mcp/"
+      "url": "http://localhost:8765/mcp"
     }
   },
   "permissions": {

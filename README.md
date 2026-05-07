@@ -262,7 +262,7 @@ Claude Code uses `permissions.allow` in settings to auto-approve tools. Add the 
   "mcpServers": {
     "brain": {
       "type": "sse",
-      "url": "http://localhost:8765/mcp/"
+      "url": "http://localhost:8765/mcp"
     }
   },
   "permissions": {
