@@ -326,6 +326,28 @@ Remote agents can then connect using HTTP transport by pointing their MCP client
 
 **Warning:** There is no authentication. Anyone who can reach the port can read, write, and delete your memories. Only expose to the network if you trust it (e.g. a private LAN or VPN). For untrusted networks, consider putting a reverse proxy with auth in front.
 
+### Running brAIn on a remote host (SSH tunnel)
+
+If brAIn runs on a remote machine (e.g. a cloud dev desktop) and you want to use it from a local AI client, forward the port over SSH:
+
+```
+# ~/.ssh/config
+Host my-remote-host
+  LocalForward 18765 127.0.0.1:8765
+```
+
+Then point your MCP client at the local forwarded port: `http://localhost:18765/mcp`.
+
+**Pick a local port that's actually free.** SSH's `LocalForward` fails silently when the local port is already bound — your client will connect to whatever else is listening on that port and you'll chase phantom errors (auth failures, weird `Server:` headers, 401s) that have nothing to do with brAIn. On macOS, port 8765 is sometimes claimed by other apps (e.g. Amazon Quick.app's `quickwork-agent`), which is why the example above forwards to `18765` instead.
+
+To check what's listening locally before setting up the tunnel:
+
+```bash
+lsof -iTCP:8765 -sTCP:LISTEN -nP
+```
+
+If anything comes back, pick a different local port for the `LocalForward`.
+
 ## Privacy
 
 - All data stored locally in `~/.brain/data`
