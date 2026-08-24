@@ -180,6 +180,26 @@ cp -r data data-backup-$(date +%Y%m%d)
 
 ## Troubleshooting
 
+### MCP process dies with `No module named 'mcp.server.fastmcp'`
+
+`mcp` 2.x dropped `FastMCP`. Pin stays at `mcp>=1.0.0,<2` in `requirements.txt`. Rebuild after pulling:
+
+```bash
+docker compose build
+docker compose up -d
+```
+
+If `docker compose` is missing, `docker-compose` 1.29.2 can raise `KeyError: ContainerConfig` on recreate against newer Docker Engine. Recreate with:
+
+```bash
+docker rm -f brain
+docker run -d --name brain --restart unless-stopped \
+  -p 127.0.0.1:8765:8765 -p 127.0.0.1:8766:8766 \
+  -v "$(pwd)/data:/app/data" macsmax/brain:latest
+```
+
+The MCP URL is `http://127.0.0.1:8765/mcp` with no trailing slash.
+
 ### AL2 Cloud Desktop: docker-buildx errors
 
 The version of `docker-buildx` bundled with AL2 may be too old for the compose build. Update it manually:
